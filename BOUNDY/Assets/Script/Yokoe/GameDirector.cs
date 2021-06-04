@@ -51,12 +51,12 @@ public class GameDirector : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(Input.GetMouseButton(0))
-        {
-            //  長押ししている間ジャンプ力を上げる
-            PlayerCon.jumpforce.y += 0.1f;
-            Time.timeScale = 0.3f;
-        }
+        //if(Input.GetMouseButton(0))
+        //{
+        //    //  長押ししている間ジャンプ力を上げる
+        //    PlayerCon.jumpforce.y += 0.1f;
+        //    Time.timeScale = 0.3f;
+        //}
 
         if(Input.GetMouseButtonDown(0))
         {
@@ -79,7 +79,6 @@ public class GameDirector : MonoBehaviour
             if(spring_createnum<Max_spring)
             {
                 spring_nextnum++;
-
             }
 
 

@@ -9,7 +9,7 @@ public class Flick_test : MonoBehaviour
 
     const int proccesing = 1;
 
-    const int AccuracyLebel = 15;
+    const int AccuracyLebel = 5;
 
     private Vector3[] pos = new Vector3[AccuracyLebel];
 

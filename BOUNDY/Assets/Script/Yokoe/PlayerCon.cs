@@ -119,6 +119,7 @@ public class PlayerCon : MonoBehaviour
         {
             case Playermode.Ground:
                 //フリックの処理
+
                 break;
             case Playermode.Down:
                 anim_ct += Time.deltaTime;

@@ -37,9 +37,10 @@ public class File_test : MonoBehaviour
         text.text = path;
     }
 
+    string a = "aaabbbccc";
 
     private void Start()
     {
-        Desktop();
+        text.text = "<color=#FFFF00>" + a + "</color>";
     }
 }

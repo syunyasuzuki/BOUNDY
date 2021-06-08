@@ -320,7 +320,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 0}
   m_RaycastTarget: 1
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -339,7 +339,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: 0m
+  m_Text: 0.00m
 --- !u!222 &317342620
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -468,7 +468,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &641384530
 RectTransform:
   m_ObjectHideFlags: 0
@@ -538,9 +538,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 809092613}
-  - component: {fileID: 809092612}
   - component: {fileID: 809092614}
-  - component: {fileID: 809092615}
+  - component: {fileID: 809092612}
   m_Layer: 0
   m_Name: GameMaster
   m_TagString: Untagged
@@ -557,10 +556,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 809092611}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5b6d81b6b3b37f248bcdde46b079a7c8, type: 3}
+  m_Script: {fileID: 11500000, guid: a5b62493db192f74d8b88e1f5eed30d1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ui: {fileID: 317342619}
 --- !u!4 &809092613
 Transform:
   m_ObjectHideFlags: 0
@@ -590,22 +588,10 @@ MonoBehaviour:
   TitleText:
   - {fileID: 1740725171}
   - {fileID: 641384531}
+  - {fileID: 1454591614}
   PlayerTransform: {fileID: 0}
   ScoreText: {fileID: 317342619}
-  ResultText: []
---- !u!114 &809092615
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 809092611}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5437720e9e1813f40934029de42da26f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  text: {fileID: 317342619}
+  ResultText: {fileID: 1344361513}
 --- !u!1 &1344361511
 GameObject:
   m_ObjectHideFlags: 0
@@ -640,8 +626,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 900, y: 120}
+  m_AnchoredPosition: {x: 0, y: 100}
+  m_SizeDelta: {x: 680, y: 120}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1344361513
 MonoBehaviour:
@@ -656,7 +642,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 0}
   m_RaycastTarget: 1
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -669,7 +655,7 @@ MonoBehaviour:
     m_BestFit: 0
     m_MinSize: 1
     m_MaxSize: 180
-    m_Alignment: 4
+    m_Alignment: 5
     m_AlignByGeometry: 0
     m_RichText: 1
     m_HorizontalOverflow: 0
@@ -718,8 +704,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: -100}
-  m_SizeDelta: {x: 670, y: 120}
+  m_AnchoredPosition: {x: 0, y: -10}
+  m_SizeDelta: {x: 670, y: 75}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1454591614
 MonoBehaviour:
@@ -742,10 +728,10 @@ MonoBehaviour:
       m_Calls: []
   m_FontData:
     m_Font: {fileID: 12800000, guid: 0059db9b773911141af125ad65bd40e6, type: 3}
-    m_FontSize: 80
+    m_FontSize: 75
     m_FontStyle: 0
     m_BestFit: 0
-    m_MinSize: 1
+    m_MinSize: 0
     m_MaxSize: 180
     m_Alignment: 5
     m_AlignByGeometry: 0
@@ -753,7 +739,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Best:0000000.00m
+  m_Text: Best:0.00m
 --- !u!222 &1454591615
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -779,7 +765,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1740725170
 RectTransform:
   m_ObjectHideFlags: 0
@@ -796,7 +782,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 200}
   m_SizeDelta: {x: 1000, y: 200}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1740725171

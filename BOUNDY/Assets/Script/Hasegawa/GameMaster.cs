@@ -4,18 +4,42 @@ using System;
 
 public class GameMaster : MonoBehaviour
 {
+    /// <summary>
+    /// 広告表示するためのクラス
+    /// </summary>
+    UnityAds unityads = null;
+
+    private bool IsPause = false;
+
+    /// <summary>
+    /// ポーズを解除する
+    /// </summary>
+    public void UnPause()
+    {
+        IsPause = false;
+    }
+
+    /// <summary>
+    /// 渡された値を小数点第2以下四捨五入しコンマ区切り文字列に変換する
+    /// また最後に単位（m）もつける
+    /// </summary>
+    private string ScoreSep(float n)
+    {
+        return string.Format("{0:#,0.00}m", Math.Round(n >= 9999999.99 ? 9999999.99 : n, 2));
+    }
+
     #region Title
 
     /// <summary>
     /// タイトルを表示しているテキストと
     /// その下に表示しているテキスト
     /// </summary>
-    [SerializeField] Text[] TitleText = new Text[2];
+    [SerializeField] Text[] TitleText = new Text[3];
 
     /// <summary>
     /// タイトルのときのカメラの位置
     /// </summary>
-    private Vector3 TitlePos = new Vector3(-3, 3, -10);
+    private Vector3 TitlePos = new Vector3(-6, 3, -10);
 
     /// <summary>
     /// ゲーム開始時のカメラの位置
@@ -25,7 +49,7 @@ public class GameMaster : MonoBehaviour
     /// <summary>
     /// フェードにかける時間
     /// </summary>
-    const float FadeTime = 3f;
+    const float FadeTime = 1.5f;
 
     /// <summary>
     /// フェードした時間
@@ -49,7 +73,7 @@ public class GameMaster : MonoBehaviour
         {
             //タイトルでの入力待ち
             case Fade.NotFade:
-                if (Input.GetMouseButtonDown(0))
+                if (!IsPause && Input.GetMouseButtonDown(0))
                 {
                     nowfade = Fade.FadeIn;
                     time = 0;
@@ -59,7 +83,7 @@ public class GameMaster : MonoBehaviour
             case Fade.FadeIn:
                 Vector3 incamerapos = Camera.main.transform.position;
                 Camera.main.transform.position += new Vector3((GameStartPos.x - incamerapos.x) / (FadeTime - time), (GameStartPos.y - incamerapos.y) / (FadeTime - time), 0);
-                TitleText[0].color = TitleText[1].color = new Color(1, 1, 1, 1 / FadeTime * (FadeTime - time));
+                TitleText[0].color = TitleText[1].color = TitleText[2].color = new Color(1, 1, 1, 1 / FadeTime * (FadeTime - time));
                 time += Time.deltaTime;
                 if (time >= FadeTime)
                 {
@@ -123,7 +147,7 @@ public class GameMaster : MonoBehaviour
         if (Score < PlayerTransform.position.y)
         {
             Score = PlayerTransform.position.y;
-            ScoreText.text = Math.Round(Score, 2) + "m";
+            ScoreText.text = ScoreSep(Score);
         }
     }
 
@@ -134,7 +158,7 @@ public class GameMaster : MonoBehaviour
     /// <summary>
     /// リザルトを表示するテキスト
     /// </summary>
-    [SerializeField] Text[] ResultText = new Text[2];
+    [SerializeField] Text ResultText = null;
 
     /// <summary>
     /// リザルト画面での処理の状態
@@ -162,6 +186,11 @@ public class GameMaster : MonoBehaviour
     private string bestscore_str = "";
 
     /// <summary>
+    /// ベストスコア更新用に使う
+    /// </summary>
+    private string newbestscore_str = "";
+
+    /// <summary>
     /// リザルトでの表示に使う時間
     /// </summary>
     private float resulttime = 0;
@@ -186,10 +215,15 @@ public class GameMaster : MonoBehaviour
     /// </summary>
     void Result_set()
     {
+        ResultText.color = new Color(1, 1, 1, 1);
+        ResultText.text = "";
+        TitleText[2].color = new Color(1, 1, 1, 1);
+        TitleText[2].text = "";
         resulttime = 0;
-        score_str = Math.Round(Score, 2).ToString();
-        bestscore_str = Math.Round(BestScore, 2).ToString();
+        score_str = ScoreSep(Score);
+        bestscore_str = ScoreSep(BestScore);
         wordcount = score_str.Length + bestscore_str.Length;
+        count = 0;
         nowresultmode = ResultMode.Animation;
     }
 
@@ -201,30 +235,87 @@ public class GameMaster : MonoBehaviour
         switch (nowresultmode)
         {
             case ResultMode.Animation:
-                //
+
+                //現在のスコアとベストスコアを表示する
                 resulttime += Time.deltaTime;
                 if (resulttime >= ResultTransitionSpeed)
                 {
                     resulttime = 0;
-                    if (++count < score_str.Length)
+                    if (++count <= score_str.Length)
                     {
-
+                        ResultText.text = score_str.Substring(0, count);
                     }
                     else
                     {
-
+                        TitleText[2].text = bestscore_str.Substring(0, count - score_str.Length);
                     }
                 }
 
-                //全ての文字を表示出来たら次へ移動する
-                if (count == wordcount)
+                //全ての文字を表示するか表示中に画面をタップされた場合
+                //処理をスキップして全ての文字を表示させる
+                if (count == wordcount || Input.GetMouseButtonDown(0))
                 {
+                    resulttime = 0;
+                    count = 0;
+                    ResultText.text = score_str;
+                    TitleText[2].text = bestscore_str;
 
+                    //もし最高到達地点を超えていたハイライトの処理に移る
+                    if (Score > BestScore)
+                    {
+                        BestScore = Score;
+                        newbestscore_str = "NewBest:" + ScoreSep(BestScore);
+                        wordcount = score_str.Length + newbestscore_str.Length;
+                        string eir = "";
+                        for(int i=0;i< newbestscore_str.Length - bestscore_str.Length; ++i)
+                        {
+                            eir += " ";
+                        }
+                        bestscore_str = eir + bestscore_str;
+                        nowresultmode = ResultMode.HighAnimation;
+                    }
+                    //そうでない場合待機へ移動
+                    else
+                    {
+                        nowresultmode = ResultMode.Weit;
+                    }
                 }
                 break;
             case ResultMode.HighAnimation:
+
+                //現在のスコアをハイライトした後とベストスコアをハイライト表示する
+                resulttime += Time.deltaTime;
+                if (resulttime >= ResultTransitionSpeed / 2f)
+                {
+                    resulttime = 0;
+                    if (++count <= score_str.Length)
+                    {
+                        ResultText.text = "<color=#FFFF00>" + score_str.Substring(0, count) + "</color>" + score_str.Substring(count, score_str.Length - count);
+                    }
+                    else
+                    {
+                        TitleText[2].text = "<color=#FFFF00>" + newbestscore_str.Substring(0, count - score_str.Length) + "</color>" + bestscore_str.Substring(count - score_str.Length, bestscore_str.Length - count + score_str.Length);
+                    }
+                }
+
+                //全ての文字をハイライト表示するか表示中に画面をタップされた場合
+                //処理をスキップして全ての文字を表示させ、待機状態に移動する
+                if (count == wordcount || Input.GetMouseButtonDown(0))
+                {
+                    resulttime = 0;
+                    count = 0;
+                    ResultText.color = new Color(1, 1, 0, 1);
+                    TitleText[2].color = new Color(1, 1, 0, 1);
+                    ResultText.text = score_str;
+                    TitleText[2].text = newbestscore_str;
+                    nowresultmode = ResultMode.Weit;
+                }
                 break;
             case ResultMode.Weit:
+                if (Input.GetMouseButtonDown(0))
+                {
+                    ChangeMode(Mode.Title);
+                }
                 break;
         }
     }
@@ -261,20 +352,18 @@ public class GameMaster : MonoBehaviour
         switch (nowmode)
         {
             case Mode.Title:
-                for(int i = 0; i < 2; ++i)
-                {
-                    TitleText[i].color = new Color(1, 1, 1, 0);
-                }
+                TitleText[0].color = TitleText[1].color = new Color(1, 1, 1, 0);
                 break;
             case Mode.Game:
                 ScoreText.color = new Color(1, 1, 1, 0);
-                ScoreText.text = "0m";
+                ScoreText.text = "0.00m";
                 break;
             case Mode.Result:
-                for(int i = 0; i < 2; ++i)
-                {
-                    ResultText[i].color = new Color(1, 1, 1, 0);
-                }
+                TitleText[2].color = new Color(1, 1, 1, 1);
+                ResultText.color = new Color(1, 1, 1, 0);
+                TitleText[2].text = "Best:" + ScoreSep(BestScore);
+                IsPause = true;
+                unityads.AdVideoStart();
                 break;
         }
 
@@ -282,21 +371,38 @@ public class GameMaster : MonoBehaviour
         switch (nextmode)
         {
             case Mode.Title:
+                TitleText[0].color = TitleText[1].color = TitleText[2].color = new Color(1, 1, 1, 1);
                 nowtask = Title_task;
                 break;
             case Mode.Game:
+                PlayerTransform.position = Vector3.zero;
+                ScoreText.color = new Color(1, 1, 1, 1);
+                ScoreText.text = "0.00m";
                 nowtask = Score_task;
                 break;
             case Mode.Result:
+                Result_set();
+                nowtask = Result_task;
                 break;
         }
 
         nowmode = nextmode;
     }
 
+    /// <summary>
+    /// 外部からリザルト画面に移す
+    /// </summary>
+    public void ChangeResult()
+    {
+        ChangeMode(Mode.Result);
+    }
+
 
     void Start()
     {
+        //広告を取得する
+        unityads = GetComponent<UnityAds>();
+
         //プレイヤーが存在しない場合生成する（統合前のエラー回避用）
         if (PlayerTransform == null) 
         {
@@ -312,5 +418,14 @@ public class GameMaster : MonoBehaviour
     void Update()
     {
         nowtask();
+        DebugMode();
+    }
+
+    void DebugMode()
+    {
+        if (Input.GetKeyDown(KeyCode.P))
+        {
+            ChangeResult();
+        }
     }
 }

@@ -9,6 +9,9 @@ public class GameMaster : MonoBehaviour
     /// </summary>
     UnityAds unityads = null;
 
+    /// <summary>
+    /// ゲームの操作を無効化する
+    /// </summary>
     private bool IsPause = false;
 
     /// <summary>
@@ -151,6 +154,8 @@ public class GameMaster : MonoBehaviour
         }
     }
 
+    ScoreFile scorefile = null;
+
     #endregion
 
     #region Result
@@ -198,7 +203,7 @@ public class GameMaster : MonoBehaviour
     /// <summary>
     /// リザルトの文字を表示する速度
     /// </summary>
-    const float ResultTransitionSpeed = 0.2f;
+    const float ResultTransitionSpeed = 0.1f;
 
     /// <summary>
     /// リザルトで表示する文字数
@@ -363,6 +368,7 @@ public class GameMaster : MonoBehaviour
                 ResultText.color = new Color(1, 1, 1, 0);
                 TitleText[2].text = "Best:" + ScoreSep(BestScore);
                 IsPause = true;
+                scorefile.WriteScore(BestScore);
                 unityads.AdVideoStart();
                 break;
         }
@@ -402,6 +408,14 @@ public class GameMaster : MonoBehaviour
     {
         //広告を取得する
         unityads = GetComponent<UnityAds>();
+
+        //スコアを書き出し読み込みするところを取得する
+        scorefile = GetComponent<ScoreFile>();
+
+        //最高スコアを取得する
+        BestScore = scorefile.ReadScore();
+        TitleText[2].text = "Best:" + ScoreSep(BestScore);
+
 
         //プレイヤーが存在しない場合生成する（統合前のエラー回避用）
         if (PlayerTransform == null) 

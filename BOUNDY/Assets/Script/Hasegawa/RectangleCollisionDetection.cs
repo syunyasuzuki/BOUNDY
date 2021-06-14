@@ -33,7 +33,11 @@ public class RectangleCollisionDetection : MonoBehaviour
         int count = 0;
         for(int i = 0; i < transformlist.Count; ++i)
         {
-            if (Mathf.Abs(transformlist[i].position.x - pos.x) < transformlist[i].localScale.x / 2 + 0.5f && Mathf.Abs(transformlist[i].position.y - pos.y) < transformlist[i].localScale.y / 2 + 0.5f) { ++count; }
+            if (Mathf.Abs(transformlist[i].position.x - pos.x) < transformlist[i].localScale.x / 2 + 0.5f && Mathf.Abs(transformlist[i].position.y - pos.y) < transformlist[i].localScale.y / 2 + 0.5f) 
+            { 
+                ++count;
+                if (All) { return 1; }
+            }
         }
         if (count > 0) { Debug.Log("Hit"); }
         return count;

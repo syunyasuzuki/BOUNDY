@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class PlayerCon : MonoBehaviour
 {
@@ -92,6 +93,8 @@ public class PlayerCon : MonoBehaviour
     /// </summary>
     Playermode now_playermode { get; set; } = Playermode.Fly;
 
+    [SerializeField] GameObject Flick_Aicon = null;
+    [SerializeField] Text Flick_Text = null;
     // Start is called before the first frame update
     void Start()
     {
@@ -102,7 +105,8 @@ public class PlayerCon : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
         player_sptr = GetComponent<SpriteRenderer>();
         flickcon = GetComponent<FlickCon>();
-
+        //プレイヤーのtransformを渡す
+        GameObject.Find("GameMaster").GetComponent<RectangleCollisionDetection>().SetTransformList(transform);
     }
 
     // Update is called once per frame
@@ -117,6 +121,8 @@ public class PlayerCon : MonoBehaviour
                 {
                     transform.localScale = new Vector3(Flick, 1, 1);
                     now_playermode = Playermode.Fly;
+                    Flick_Aicon.SetActive(false);
+                    Flick_Text.color = new Color(1, 1, 1, 0);
                 }
                 break;
             case Playermode.Down:

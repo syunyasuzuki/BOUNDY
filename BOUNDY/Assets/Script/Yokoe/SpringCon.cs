@@ -4,8 +4,6 @@ using UnityEngine;
 
 public class SpringCon : MonoBehaviour
 {
-    [SerializeField] GameObject flick;
-    
     /// <summary>
     /// ばねのプレハブ
     /// </summary>
@@ -52,6 +50,11 @@ public class SpringCon : MonoBehaviour
     private int use_spring_num = -1;
 
     Transform []alltrans = null;
+
+    /// <summary>
+    /// 当たり判定
+    /// </summary>
+    RectangleCollisionDetection rcd;
 
      /// <summary>
      /// 履歴を指定された箇所から左詰めにする
@@ -171,6 +174,8 @@ public class SpringCon : MonoBehaviour
 
     void Awake()
     {
+        rcd = GameObject.Find("GameMaster").GetComponent<RectangleCollisionDetection>();
+
         //マルチタッチ無効化
         Input.multiTouchEnabled = false;
 
@@ -178,6 +183,7 @@ public class SpringCon : MonoBehaviour
         {
             Springs[i] = Instantiate(Spring);
             Springs[i].gameObject.SetActive(false);
+            rcd.SetTransformList(Springs[i].transform);
         }
     }
 
@@ -190,8 +196,12 @@ public class SpringCon : MonoBehaviour
     {
       if(Input.GetMouseButtonDown(0))
         {
-            Create_Spring();
-            Time.timeScale = 0.3f;
+            //置いたときにオブジェクトに当たっているかどうか確認
+            if(rcd.CollisionDetection(Camera.main.ScreenToWorldPoint(Input.mousePosition - Camera.main.transform.position), true)==0)
+            {
+                Create_Spring();
+                Time.timeScale = 0.3f;
+            }
         }
       if(Input.GetMouseButton(0))
         {

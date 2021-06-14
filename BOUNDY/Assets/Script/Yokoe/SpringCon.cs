@@ -52,7 +52,7 @@ public class SpringCon : MonoBehaviour
     Transform []alltrans = null;
 
     /// <summary>
-    /// 当たり判定
+    /// 当たり判定のScript
     /// </summary>
     RectangleCollisionDetection rcd;
 
@@ -192,7 +192,7 @@ public class SpringCon : MonoBehaviour
     /// </summary>
     float springpower = 0;
     // Update is called once per frame
-    private void Update()
+    public void Creare_task()
     {
       if(Input.GetMouseButtonDown(0))
         {

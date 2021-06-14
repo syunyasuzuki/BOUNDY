@@ -97,10 +97,12 @@ public class FlickCon : MonoBehaviour
 
                 if (Direction.x < 0) 
                 {
-                    return 1;
+                    Debug.Log("a");
+                    return 1;   
                 }
                 else
                 {
+                    Debug.Log("b");
                     return -1;
                 }
                
@@ -108,7 +110,7 @@ public class FlickCon : MonoBehaviour
 
             PosClear();
         }
-
+       
         if (count == int.MaxValue) count = 0;
         return 0;
     }

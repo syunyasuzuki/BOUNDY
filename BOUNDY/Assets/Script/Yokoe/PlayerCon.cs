@@ -91,7 +91,7 @@ public class PlayerCon : MonoBehaviour
     /// <summary>
     /// 現在の処理
     /// </summary>
-    Playermode now_playermode { get; set; } = Playermode.Fly;
+    Playermode now_playermode { get; set; } = Playermode.Ground;
 
     [SerializeField] GameObject Flick_Aicon = null;
     [SerializeField] Text Flick_Text = null;
@@ -99,7 +99,7 @@ public class PlayerCon : MonoBehaviour
     void Start()
     {
         //ばねの情報を参照する
-        springcon =GameObject.Find("GameDirector").GetComponent<SpringCon>();
+        springcon =GameObject.Find("GameMaster").GetComponent<SpringCon>();
         spring_obj = springcon.GetSpring();
         //  Rigidbody&SpriteRenderer取得
         rb = GetComponent<Rigidbody2D>();
@@ -126,6 +126,7 @@ public class PlayerCon : MonoBehaviour
                 }
                 break;
             case Playermode.Down:
+                springcon.Creare_task();
                 anim_ct += Time.deltaTime;
                 if (anim_ct >= spt_anim_ct[spt_ct])
                 {
@@ -146,6 +147,7 @@ public class PlayerCon : MonoBehaviour
                 }
                 break;
             case Playermode.Up:
+                springcon.Creare_task();
                 anim_ct += Time.deltaTime;
                 if (anim_ct >= spt_anim_ct[spt_ct])
                 {

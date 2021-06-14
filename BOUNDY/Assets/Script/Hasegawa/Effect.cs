@@ -2,6 +2,8 @@
 
 public class Effect : MonoBehaviour
 {
+    [SerializeField] bool Roop = false;
+
     /// <summary>
     /// 処理を継続できるか
     /// アニメーションさせるスプライトが入ってない場合、
@@ -84,6 +86,12 @@ public class Effect : MonoBehaviour
         spriterenderer = gameObject.AddComponent<SpriteRenderer>();
 
         IsAnimation = true;
+
+        if (Roop)
+        {
+            spriterenderer.sprite = AnimationSprite[0];
+            Isweit = false;
+        }
     }
 
     // Update is called once per frame
@@ -103,8 +111,17 @@ public class Effect : MonoBehaviour
             }
             else
             {
-                Isweit = true;
-                spriterenderer.sprite = null;
+                if (Roop)
+                {
+                    time = 0;
+                    count = 0;
+                    spriterenderer.sprite = AnimationSprite[0];
+                }
+                else
+                {
+                    Isweit = true;
+                    spriterenderer.sprite = null;
+                }
             }
         }
     }

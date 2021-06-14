@@ -21,7 +21,7 @@ public class UnityAds : MonoBehaviour,IUnityAdsListener
     /// <summary>
     /// リワード広告を流すためのID
     /// </summary>
-    private readonly string AdRewardedVideoID = "rewardedVideo";
+    //private readonly string AdRewardedVideoID = "rewardedVideo";
 
     /// <summary>
     /// ゲームを統括している部分を参照する

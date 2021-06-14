@@ -4,10 +4,12 @@ using UnityEngine;
 
 public class SpringCon : MonoBehaviour
 {
+    [SerializeField] GameObject flick;
+    
     /// <summary>
     /// ばねのプレハブ
     /// </summary>
-    [SerializeField] GameObject Spring = null;
+    [SerializeField] SpringObject Spring = null;
 
     /// <summary>
     /// 生成できるばねの最大数
@@ -35,14 +37,9 @@ public class SpringCon : MonoBehaviour
     SpriteRenderer past_spring_sprr = null;
 
     /// <summary>
-    /// 次にばねを生成するときの配列番号
-    /// </summary>
-    int next_spring_num = 0;
-
-    /// <summary>
     /// 生成したばね
     /// </summary>
-    GameObject[] Springs = new GameObject[Max_springs];
+    SpringObject[] Springs = new SpringObject[Max_springs];
 
     /// <summary>
     /// 生成したばねの履歴
@@ -50,31 +47,17 @@ public class SpringCon : MonoBehaviour
     int[] history_spring =new int[Max_springs];
 
     /// <summary>
-    /// 生成したばねの強さ
-    /// </summary>
-    float[] springs_value = new float[Max_springs];
-
-    /// <summary>
     /// プレイヤーが使っているばねの番号(使っていない場合：-1)
     /// </summary>
     private int use_spring_num = -1;
 
-    /// <summary>
-    /// 指定されたばねの強さを取得
-    /// </summary>
-    /// <param name="n"></param>
-    /// <returns></returns>
-    public float GetSpringpower(int n)
-    {
-        use_spring_num = n;
-        return 1 / 0.3f * springpower;
-    }
+    Transform []alltrans = null;
 
      /// <summary>
      /// 履歴を指定された箇所から左詰めにする
      /// </summary>
-     /// <param name="n"></param>
-    void LeftHistory(int n)
+     /// <param name="n">ばねの番号</param>
+    void ShiftLeftSHistory(int n)
     {
         for (int i = n; i < Max_springs - 1; ++i) 
         {
@@ -85,7 +68,7 @@ public class SpringCon : MonoBehaviour
     /// <summary>
     /// 履歴の中の指定された箇所を削除
     /// </summary>
-    /// <param name="n"></param>
+    /// <param name="n">ばねの番号</param>
     public void DeleteHistory(int n)
     {
         int breakpoint = 0;
@@ -97,69 +80,79 @@ public class SpringCon : MonoBehaviour
                 break;
             }
         }
-        LeftHistory(breakpoint);
+        ShiftLeftSHistory(breakpoint);
     }
 
     /// <summary>
     /// ばねを生成する
     /// </summary>
     void Create_Spring()
-    {
-       //最大まで生成されている場合1番古いものを消す
-       if(now_create_num>=Max_springs)
+    {   
+        int next = 0;
+        //次に生成する場所を探す
+        if(now_create_num==Max_springs)
         {
             if(use_spring_num!=-1&&history_spring[0]==use_spring_num)
             {
-                Destroy(Springs[history_spring[1]].gameObject);
-                next_spring_num = history_spring[1];
-                LeftHistory(history_spring[2]);
+                next = history_spring[1];
+                ShiftLeftSHistory(1);
             }
             else
             {
-                Destroy(Springs[history_spring[0]].gameObject);
-            }
+                next = history_spring[0];
+            }     
             --now_create_num;
+        }
+        else
+        {
+            for(int i=0;i<Max_springs;++i)
+            {
+                if(!Springs[i].gameObject.activeSelf)
+                {
+                    next = i;
+                    break;
+                }
+            }
         }
 
         //ばねの生成
-        Springs[next_spring_num] = Instantiate(Spring);
-        Springs[next_spring_num].name = next_spring_num.ToString();
-        past_spring_sprr = Springs[next_spring_num].GetComponent<SpriteRenderer>();
-        past_spring_num = next_spring_num;
+        ////Debug.Log("AAAAAAA:" + next.ToString());
+        Springs[next].springNum = next;
 
         //生成したばねの位置変更
-        Vector3 touchpos = Camera.main.ScreenToWorldPoint(Input.mousePosition - Camera.main.transform.position);
-        Springs[past_spring_num].transform.position = touchpos;
+        Vector3 pos = Camera.main.ScreenToWorldPoint(Input.mousePosition - Camera.main.transform.position);
+        Springs[next].gameObject.transform.position = pos;
+
+        Springs[next].ResetSpring();
+
+
+        Springs[next].gameObject.name = next.ToString() + "_" + next.ToString();
+        Springs[next].gameObject.name = next.ToString() + "_" + next.ToString();
+        past_spring_sprr = Springs[next].GetComponent<SpriteRenderer>();
+        past_spring_num = next;
+
+        Springs[next].gameObject.SetActive(true);
+
 
         //生成した回数を加算
         create_spring_count++;
         now_create_num++;
 
         //履歴を更新
-        //履歴をもとに次生成する際の配列の番号を決定
-        if(create_spring_count<=Max_springs)
-        {
-            history_spring[next_spring_num] = next_spring_num;
-            next_spring_num++;
-            if(next_spring_num==Max_springs)
-            {
-                next_spring_num = 0;
-            }
-        }
-        else
-        {
-            LeftHistory(0);
-            history_spring[Max_springs - 1] = next_spring_num;
-            next_spring_num = history_spring[0];
-        }
+        ShiftLeftSHistory(0);
+        history_spring[Max_springs - 1] = next;
 
         Debug.Log(history_spring[0] + "_" + history_spring[1] + "_" + history_spring[2]);
     }
 
+    /// <summary>
+    /// ばねを削除
+    /// </summary>
+    /// <param name="n">ばねの番号</param>
     public void DeleteSpring(int n)
     {
         //対象を削除
-        Destroy(Springs[n].gameObject);
+        Springs[n].gameObject.SetActive(false);
 
         //生成されている回数減算
         now_create_num--;
@@ -167,24 +160,31 @@ public class SpringCon : MonoBehaviour
         //履歴から対象の番号を削除
         DeleteHistory(n);
 
-        //次に生成する際の配列の番号を更新
-        next_spring_num = n;
-
         //ばねを使用していない状態
         use_spring_num = -1;
+    }
+
+    public SpringObject[] GetSpring()
+    {
+        return Springs;
     }
 
     void Awake()
     {
         //マルチタッチ無効化
         Input.multiTouchEnabled = false;
+
+        for (int i = 0; i < Springs.Length; i++)
+        {
+            Springs[i] = Instantiate(Spring);
+            Springs[i].gameObject.SetActive(false);
+        }
     }
 
     /// <summary>
     /// ばねの強さ
     /// </summary>
     float springpower = 0;
-
     // Update is called once per frame
     private void Update()
     {
@@ -195,8 +195,8 @@ public class SpringCon : MonoBehaviour
         }
       if(Input.GetMouseButton(0))
         {
-            springpower = Mathf.Clamp(springpower += Time.deltaTime, 0, 0.9f);
-            springs_value[past_spring_num] = springpower;
+            springpower = Mathf.Clamp(springpower += Time.deltaTime, 0, 0.6f);
+            Springs[past_spring_num].springPower = springpower;
             //強さによる色変え
             float col = 1 / 0.3f * springpower;
             past_spring_sprr.color = new Color(1, 1 - col, 1 - col, 1);
@@ -204,7 +204,7 @@ public class SpringCon : MonoBehaviour
       if(Input.GetMouseButtonUp(0))
         {
             Time.timeScale = 1;
-            springs_value[past_spring_num] = springpower;
+            Springs[past_spring_num].springPower = springpower;
             springpower = 0;
         }
     }

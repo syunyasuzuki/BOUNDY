@@ -33,10 +33,16 @@ public class PlayerCon : MonoBehaviour
     /// <summary>
     /// プレイヤーの基礎ジャンプ力
     /// </summary>
-    private Vector2 JumpForce = new Vector2(1, 1);
+    private Vector2 JumpForce = new Vector2(1, 5);
+
+    /// <summary>
+    /// FlickCon
+    /// </summary>
+    FlickCon flickcon;
 
     #endregion
 
+    #region アニメーション関連
     /// <summary>
     /// どのアニメーションを使っているか
     /// </summary>
@@ -50,14 +56,15 @@ public class PlayerCon : MonoBehaviour
     /// <summary>
     /// アニメーション間隔
     /// </summary>
-    float[] spt_anim_ct = { 2f, 2f, 2f, 2f };
+    float[] spt_anim_ct = { 0.2f, 0.2f, 0.2f, 0.2f };
 
     /// <summary>
     /// プレイヤーのアニメーションの順番
     /// </summary>
     int[] player_spt_ct = { 1, 1, 2, 3 };
+    #endregion
 
-    #region ばね関連
+    SpringObject[] spring_obj = null;
 
     /// <summary>
     /// ばねの情報を取得するための参照先
@@ -65,26 +72,9 @@ public class PlayerCon : MonoBehaviour
     SpringCon springcon;
 
     /// <summary>
-    /// 着地したばね
-    /// </summary>
-    private GameObject spring = null;
-
-    /// <summary>
-    /// 着地したばねのSpriteRenderer
-    /// </summary>
-    private SpriteRenderer spring_sptr = null;
-
-    /// <summary>
-    /// 着地したばねの強さ
-    /// </summary>
-    private float spring_value = 0;
-
-    /// <summary>
     /// 着地したばねの番号
     /// </summary>
     int spring_num = 0;
-
-    #endregion
 
     /// <summary>
     /// スクリプト内の処理の切り替え用
@@ -93,23 +83,26 @@ public class PlayerCon : MonoBehaviour
     {
         Ground = 0,//プレイヤーが地面にいるとき
         Fly = 1,//プレイヤーが空中にいるとき
-        Down = 3,//プレイヤーがばねにふれてばねが下がっていくとき
-        Up = 1//プレイヤーがばねにふれてばねが上がっていくとき
+        Down = 2,//プレイヤーがばねにふれてばねが下がっていくとき
+        Up = 3//プレイヤーがばねにふれてばねが上がっていくとき
     }
 
     /// <summary>
     /// 現在の処理
     /// </summary>
-    Playermode now_playermode = Playermode.Fly;
+    Playermode now_playermode { get; set; } = Playermode.Fly;
 
     // Start is called before the first frame update
     void Start()
     {
         //ばねの情報を参照する
         springcon =GameObject.Find("GameDirector").GetComponent<SpringCon>();
+        spring_obj = springcon.GetSpring();
         //  Rigidbody&SpriteRenderer取得
         rb = GetComponent<Rigidbody2D>();
         player_sptr = GetComponent<SpriteRenderer>();
+        flickcon = GetComponent<FlickCon>();
+
     }
 
     // Update is called once per frame
@@ -119,7 +112,12 @@ public class PlayerCon : MonoBehaviour
         {
             case Playermode.Ground:
                 //フリックの処理
-
+                int Flick= flickcon.Flisk_task();
+                if(Flick!=0)
+                {
+                    transform.localScale = new Vector3(Flick, 1, 1);
+                    now_playermode = Playermode.Fly;
+                }
                 break;
             case Playermode.Down:
                 anim_ct += Time.deltaTime;
@@ -128,10 +126,10 @@ public class PlayerCon : MonoBehaviour
                     //プレイヤーのSprite差し替え
                     player_sptr.sprite = player_spt[player_spt_ct[spt_ct]];
                     //ばねのSprite差し替え
-                    spring_sptr.sprite = spring_sprite[spt_ct];
+                    spring_obj[spring_num].AnimeSpring(spt_ct);
                     anim_ct = 0;
 
-                    transform.position = new Vector3(transform.position.x, spring.transform.position.y + (1f / 10) * 7 - (1f / 10) * 2 * spt_ct, 0);
+                    transform.position = new Vector3(transform.position.x,spring_obj[spring_num].GetPos().y + (1f / 10) * 7 - (1f / 10) * 2 * spt_ct, 0);
 
                     spt_ct++;
 
@@ -147,16 +145,17 @@ public class PlayerCon : MonoBehaviour
                 {
                     //プレイヤーのSprite差し替え
                     player_sptr.sprite = player_spt[player_spt_ct[spt_ct]];
-                    //ばねのSprite差し替え
-                    spring_sptr.sprite = spring_sprite[spt_ct];
+
+                    spring_obj[spring_num].AnimeSpring(spt_ct);
                     spt_ct++;
+
                     anim_ct = 0;
 
                     if (spt_ct == 3)
                     {
                         now_playermode = Playermode.Fly;
                         rb.isKinematic = false;
-                        rb.AddForce(new Vector2(JumpForce.x, JumpForce.y + spring_value), ForceMode2D.Impulse);
+                        rb.AddForce(new Vector2(JumpForce.x, JumpForce.y * (spring_obj[spring_num].springPower + 1)), ForceMode2D.Impulse);
                         GameDirector.Spring_ct = 0;
                         springcon.DeleteSpring(spring_num);
                     }
@@ -175,16 +174,10 @@ public class PlayerCon : MonoBehaviour
 
         if(col.gameObject.tag==("Spring") && now_playermode == Playermode.Fly&&transform.position.y>col.transform.position.y)
         {
-            //着地したばねのスプライトレンダラーを取得
-            spring_sptr = col.gameObject.GetComponent<SpriteRenderer>();
-            //着地したばねを取得
-            spring = col.gameObject;
-            //着地したばねのColliderを削除
-            Destroy(col.gameObject.GetComponent<BoxCollider2D>());
+            now_playermode = Playermode.Down;
+
             //着地したばねの番号を名前から取得
-            spring_num = int.Parse(col.gameObject.name);
-            //着地したばねの強さを取得
-            spring_value = springcon.GetSpringpower(spring_num);
+            spring_num = col.gameObject.GetComponent<SpringObject>().springNum;
             //アニメーション遷移用のカウントをリセット
             anim_ct = 0;
             //アニメーションの再生をリセット

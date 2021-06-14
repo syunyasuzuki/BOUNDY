@@ -36,6 +36,7 @@ public class UnityAds : MonoBehaviour,IUnityAdsListener
         //広告の取得ができていない場合はじく
         if (!Advertisement.IsReady())
         {
+            gamemaster.UnPause();
             return false;
         }
 
@@ -44,6 +45,7 @@ public class UnityAds : MonoBehaviour,IUnityAdsListener
         //準備できていない場合はじく
         if (videoready != PlacementState.Ready)
         {
+            gamemaster.UnPause();
             return false;
         }
 

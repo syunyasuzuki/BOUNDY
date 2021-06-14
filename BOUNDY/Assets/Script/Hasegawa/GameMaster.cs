@@ -129,6 +129,11 @@ public class GameMaster : MonoBehaviour
     [SerializeField] Text ScoreText = null;
 
     /// <summary>
+    /// ヒントを表示するテキスト
+    /// </summary>
+    [SerializeField] Text HintText = null;
+
+    /// <summary>
     /// 最高到達地点
     /// </summary>
     private float BestScore { get; set; } = 0;
@@ -362,6 +367,7 @@ public class GameMaster : MonoBehaviour
             case Mode.Game:
                 ScoreText.color = new Color(1, 1, 1, 0);
                 ScoreText.text = "0.00m";
+                HintText.color = new Color(1, 1, 1, 0);
                 break;
             case Mode.Result:
                 TitleText[2].color = new Color(1, 1, 1, 1);
@@ -385,6 +391,7 @@ public class GameMaster : MonoBehaviour
                 ScoreText.color = new Color(1, 1, 1, 1);
                 ScoreText.text = "0.00m";
                 nowtask = Score_task;
+                HintText.color = new Color(1, 1, 1, 1);
                 break;
             case Mode.Result:
                 Result_set();

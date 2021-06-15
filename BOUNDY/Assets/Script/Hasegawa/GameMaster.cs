@@ -423,13 +423,6 @@ public class GameMaster : MonoBehaviour
         BestScore = scorefile.ReadScore();
         TitleText[2].text = "Best:" + ScoreSep(BestScore);
 
-
-        //プレイヤーが存在しない場合生成する（統合前のエラー回避用）
-        if (PlayerTransform == null) 
-        {
-            new GameObject("Player");
-        }
-
         //プレイヤーのトランスフォームを参照
         PlayerTransform = GameObject.Find("Player").transform;
 
@@ -439,7 +432,10 @@ public class GameMaster : MonoBehaviour
     void Update()
     {
         nowtask();
-        DebugMode();
+        if (Application.isEditor)
+        {
+            DebugMode();
+        }
     }
 
     void DebugMode()

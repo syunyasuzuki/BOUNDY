@@ -120,13 +120,18 @@ public class PlayerCon : MonoBehaviour
                 if(Flick!=0)
                 {
                     transform.localScale = new Vector3(Flick, 1, 1);
+                    rb.isKinematic = false;
+                    rb.AddForce(new Vector2(Flick * 50f, 300.0f));
                     now_playermode = Playermode.Fly;
                     Flick_Aicon.SetActive(false);
                     Flick_Text.color = new Color(1, 1, 1, 0);
                 }
                 break;
+            case Playermode.Fly:
+                springcon.Create_task();
+                break;
             case Playermode.Down:
-                springcon.Creare_task();
+                springcon.Create_task();
                 anim_ct += Time.deltaTime;
                 if (anim_ct >= spt_anim_ct[spt_ct])
                 {
@@ -147,7 +152,7 @@ public class PlayerCon : MonoBehaviour
                 }
                 break;
             case Playermode.Up:
-                springcon.Creare_task();
+                springcon.Create_task();
                 anim_ct += Time.deltaTime;
                 if (anim_ct >= spt_anim_ct[spt_ct])
                 {
@@ -170,12 +175,15 @@ public class PlayerCon : MonoBehaviour
                 }
                 break;
         }
-
     }
 
     void OnCollisionEnter2D(Collision2D col)
     {
-        if(col.gameObject.tag==("Wall"))
+        if (col.gameObject.tag == ("Ground"))
+        {
+            now_playermode = Playermode.Ground;
+        }
+        if (col.gameObject.tag==("Wall"))
         {
             transform.localScale = new Vector2(transform.localScale.x * -1.0f, transform.localScale.y);
         }
@@ -186,6 +194,7 @@ public class PlayerCon : MonoBehaviour
 
             //着地したばねの番号を名前から取得
             spring_num = col.gameObject.GetComponent<SpringObject>().springNum;
+            springcon.SetUseSpringnum(spring_num);
             //アニメーション遷移用のカウントをリセット
             anim_ct = 0;
             //アニメーションの再生をリセット

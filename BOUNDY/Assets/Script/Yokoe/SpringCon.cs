@@ -95,6 +95,7 @@ public class SpringCon : MonoBehaviour
         //次に生成する場所を探す
         if(now_create_num==Max_springs)
         {
+            Debug.Log("max");
             if(use_spring_num!=-1&&history_spring[0]==use_spring_num)
             {
                 next = history_spring[1];
@@ -103,6 +104,7 @@ public class SpringCon : MonoBehaviour
             else
             {
                 next = history_spring[0];
+                ShiftLeftSHistory(0);
             }     
             --now_create_num;
         }
@@ -113,14 +115,18 @@ public class SpringCon : MonoBehaviour
                 if(!Springs[i].gameObject.activeSelf)
                 {
                     next = i;
+                    if (create_spring_count < Max_springs)
+                    {
+                        ShiftLeftSHistory(0);
+                    }
                     break;
                 }
             }
         }
 
         //ばねの生成
-        ////Debug.Log("AAAAAAA:" + next.ToString());
-        Springs[next].springNum = next;
+        Debug.Log("AAAAAAA:" + next.ToString());
+        //Springs[next].springNum = next;
 
         //生成したばねの位置変更
         Vector3 pos = Camera.main.ScreenToWorldPoint(Input.mousePosition - Camera.main.transform.position);
@@ -142,10 +148,18 @@ public class SpringCon : MonoBehaviour
         now_create_num++;
 
         //履歴を更新
-        ShiftLeftSHistory(0);
         history_spring[Max_springs - 1] = next;
 
         Debug.Log(history_spring[0] + "_" + history_spring[1] + "_" + history_spring[2]);
+    }
+
+    /// <summary>
+    /// どの番号のばねを使っているか取得
+    /// </summary>
+    /// <param name="_spring_num">ばねの番号</param>
+    public void SetUseSpringnum(int _spring_num)
+    {
+        use_spring_num = _spring_num;
     }
 
     /// <summary>
@@ -156,7 +170,7 @@ public class SpringCon : MonoBehaviour
     {
         //対象を削除
         Springs[n].gameObject.SetActive(false);
-
+        Springs[n].gameObject.transform.position = new Vector3(0, -5, 0);
         //生成されている回数減算
         now_create_num--;
 
@@ -182,28 +196,31 @@ public class SpringCon : MonoBehaviour
         for (int i = 0; i < Springs.Length; i++)
         {
             Springs[i] = Instantiate(Spring);
+            Springs[i].gameObject.transform.position = new Vector3(0, -5 - i, 0);
+            Springs[i].springNum = i;
             Springs[i].gameObject.SetActive(false);
             rcd.SetTransformList(Springs[i].transform);
         }
     }
-
+    bool create_key = false;
     /// <summary>
     /// ばねの強さ
     /// </summary>
     float springpower = 0;
     // Update is called once per frame
-    public void Creare_task()
+    public void Create_task()
     {
       if(Input.GetMouseButtonDown(0))
         {
             //置いたときにオブジェクトに当たっているかどうか確認
             if(rcd.CollisionDetection(Camera.main.ScreenToWorldPoint(Input.mousePosition - Camera.main.transform.position), true)==0)
             {
+                create_key = true;
                 Create_Spring();
                 Time.timeScale = 0.3f;
             }
         }
-      if(Input.GetMouseButton(0))
+        if (create_key && Input.GetMouseButton(0)) 
         {
             springpower = Mathf.Clamp(springpower += Time.deltaTime, 0, 0.6f);
             Springs[past_spring_num].springPower = springpower;
@@ -211,11 +228,12 @@ public class SpringCon : MonoBehaviour
             float col = 1 / 0.3f * springpower;
             past_spring_sprr.color = new Color(1, 1 - col, 1 - col, 1);
         }
-      if(Input.GetMouseButtonUp(0))
+        if (create_key && Input.GetMouseButtonUp(0)) 
         {
             Time.timeScale = 1;
             Springs[past_spring_num].springPower = springpower;
             springpower = 0;
+            create_key = false;
         }
     }
 }

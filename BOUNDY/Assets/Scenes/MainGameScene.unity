@@ -402,6 +402,25 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: d4ac4fb3c78ba0344a84cf18d76cbb37, type: 3}
+--- !u!1 &521512906 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 3141418214935784592, guid: d4ac4fb3c78ba0344a84cf18d76cbb37,
+    type: 3}
+  m_PrefabInstance: {fileID: 494657680}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &521512907
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 521512906}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5e3bf645edae81b4b9145f021bb6edf2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Spring: {fileID: 0}
 --- !u!4 &557745621 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 1465271178118785187, guid: 8161c4f0d35edb24e8d83c240c6d49c8,
@@ -675,7 +694,7 @@ PrefabInstance:
         type: 3}
       propertyPath: Flick_Text
       value: 
-      objectReference: {fileID: 0}
+      objectReference: {fileID: 1358625696}
     - target: {fileID: 3713920109367260458, guid: 3d41eb8468cbf6049856e108bfd655f3,
         type: 3}
       propertyPath: Flick_Aicon

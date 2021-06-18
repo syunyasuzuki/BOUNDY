@@ -62,9 +62,16 @@ public class UnityAds : MonoBehaviour,IUnityAdsListener
 
         //広告を初期化する
         //第二引数にtrueを入れるとダミー広告
-        Advertisement.Initialize(GoogleID.ToString(), true);
+        try
+        {
+            Advertisement.Initialize(GoogleID.ToString(), true);
+            Advertisement.AddListener(this);
+        }
+        catch
+        {
+            Debug.Log("UnityAds用意できてません");
+        }
 
-        Advertisement.AddListener(this);
     }
 
     //広告準備完了

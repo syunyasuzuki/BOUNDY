@@ -95,7 +95,7 @@ public class FlickCon : MonoBehaviour
                     Direction = pos[nowpos] - pos[nowpos - 1];
                 }
 
-                if (Direction.x < 0) 
+                if (Direction.x > 0) 
                 {
                     Debug.Log("a");
                     return 1;   

@@ -9,6 +9,12 @@ public class RectangleCollisionDetection : MonoBehaviour
     List<Transform> transformlist = new List<Transform>();
 
     /// <summary>
+    /// 座標をとる際の一番下の値
+    /// これ以下の場合すべてをあたった判定にする
+    /// </summary>
+    [SerializeField] float LowestValue = 0f;
+
+    /// <summary>
     /// 当たり判定を取らせたいオブジェクトのTransformをリストに追加
     /// </summary>
     public void SetTransformList(Transform trans)
@@ -30,6 +36,8 @@ public class RectangleCollisionDetection : MonoBehaviour
     /// </summary>
     public int CollisionDetection(Vector3 pos ,bool All)
     {
+        if (pos.y < LowestValue) return 1;
+
         int count = 0;
         for(int i = 0; i < transformlist.Count; ++i)
         {

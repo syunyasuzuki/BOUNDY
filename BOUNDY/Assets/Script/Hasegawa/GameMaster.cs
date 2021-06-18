@@ -31,6 +31,11 @@ public class GameMaster : MonoBehaviour
         return string.Format("{0:#,0.00}m", Math.Round(n >= 9999999.99 ? 9999999.99 : n, 2));
     }
 
+    /// <summary>
+    /// 雲を取得
+    /// </summary>
+    Clouds clouds = null;
+
     #region Title
 
     /// <summary>
@@ -42,7 +47,7 @@ public class GameMaster : MonoBehaviour
     /// <summary>
     /// タイトルのときのカメラの位置
     /// </summary>
-    private Vector3 TitlePos = new Vector3(-6, 3, -10);
+    private Vector3 TitlePos = new Vector3(0, 50, -10);
 
     /// <summary>
     /// ゲーム開始時のカメラの位置
@@ -50,9 +55,14 @@ public class GameMaster : MonoBehaviour
     private Vector3 GameStartPos = new Vector3(0, 3, -10);
 
     /// <summary>
+    /// カメラの総移動距離
+    /// </summary>
+    private Vector3 movedistance = Vector3.zero;
+
+    /// <summary>
     /// フェードにかける時間
     /// </summary>
-    const float FadeTime = 1.5f;
+    const float FadeTime = 2.5f;
 
     /// <summary>
     /// フェードした時間
@@ -78,16 +88,20 @@ public class GameMaster : MonoBehaviour
             case Fade.NotFade:
                 if (!IsPause && Input.GetMouseButtonDown(0))
                 {
+                    movedistance = Camera.main.transform.position - GameStartPos;
+                    PlayerTransform.position = Vector3.zero;
                     nowfade = Fade.FadeIn;
                     time = 0;
                 }
                 break;
             //ゲームシーンへ
             case Fade.FadeIn:
-                Vector3 incamerapos = Camera.main.transform.position;
-                Camera.main.transform.position += new Vector3((GameStartPos.x - incamerapos.x) / (FadeTime - time), (GameStartPos.y - incamerapos.y) / (FadeTime - time), 0);
-                TitleText[0].color = TitleText[1].color = TitleText[2].color = new Color(1, 1, 1, 1 / FadeTime * (FadeTime - time));
                 time += Time.deltaTime;
+                //時間を加速度に変換し、それを正規化する
+                float inf = 1 / (FadeTime * (FadeTime + 1) / 2f) * (time * (time + 1) / 2f);
+                Vector3 inmovepos = movedistance * (1 - inf);
+                Camera.main.transform.position = new Vector3(GameStartPos.x + inmovepos.x, GameStartPos.y + inmovepos.y, -10);
+                TitleText[0].color = TitleText[1].color = TitleText[2].color = new Color(1, 1, 1, 1 / FadeTime * (FadeTime - time));
                 if (time >= FadeTime)
                 {
                     Camera.main.transform.position = GameStartPos;
@@ -99,8 +113,9 @@ public class GameMaster : MonoBehaviour
             //タイトルシーンへ
             case Fade.FadeOut:
                 time += Time.deltaTime;
-                Vector3 outcamerapos = Camera.main.transform.position;
-                Camera.main.transform.position += new Vector3((TitlePos.x - outcamerapos.x) / (FadeTime - time), (TitlePos.y - outcamerapos.y) / (FadeTime - time), 0);
+                float outf = 1 / (FadeTime * (FadeTime + 1) / 2f) * (time * (time + 1) / 2f);
+                Vector3 outmovepos = movedistance * (1 - outf);
+                Camera.main.transform.position = new Vector3(TitlePos.x + outmovepos.x, TitlePos.y + outmovepos.y, -10);
                 TitleText[0].color = TitleText[1].color = new Color(1, 1, 1, 1 / FadeTime * time);
                 time += Time.deltaTime;
                 if (time >= FadeTime)
@@ -116,12 +131,22 @@ public class GameMaster : MonoBehaviour
 
     #endregion
 
-    #region Score
+    #region Game
 
     /// <summary>
     /// 位置を監視する対象
     /// </summary>
     [SerializeField]Transform PlayerTransform = null;
+
+    /// <summary>
+    /// プレイヤーに追従させる壁
+    /// </summary>
+    [SerializeField] Transform Wall = null;
+
+    /// <summary>
+    /// フリック操作できるときに表示するゲームオブジェクト
+    /// </summary>
+    [SerializeField] GameObject arrow = null;
 
     /// <summary>
     /// スコアを表示するテキスト
@@ -146,17 +171,24 @@ public class GameMaster : MonoBehaviour
     /// <summary>
     /// スコアの処理
     /// </summary>
-    void Score_task()
+    void Game_task()
     {
         //スコア用のテキストUIがない場合処理をはじく
         if (ScoreText == null) return;
+
+        //壁の位置をプレイヤーに合わせる
+        Wall.position = new Vector3(0, PlayerTransform.position.y, 0);
 
         //到達地点を超えた場合に到達地点を書き換える
         if (Score < PlayerTransform.position.y)
         {
             Score = PlayerTransform.position.y;
             ScoreText.text = ScoreSep(Score);
+            Camera.main.transform.position = new Vector3(0, Mathf.Clamp(PlayerTransform.position.y + 1, 3, int.MaxValue), -10);
         }
+
+        //もしプレイヤーが一定の高さ以下に言った場合死亡とみなしリザルトに進む
+        
     }
 
     ScoreFile scorefile = null;
@@ -368,6 +400,7 @@ public class GameMaster : MonoBehaviour
                 ScoreText.color = new Color(1, 1, 1, 0);
                 ScoreText.text = "0.00m";
                 HintText.color = new Color(1, 1, 1, 0);
+                arrow.SetActive(false);
                 break;
             case Mode.Result:
                 TitleText[2].color = new Color(1, 1, 1, 1);
@@ -384,14 +417,17 @@ public class GameMaster : MonoBehaviour
         {
             case Mode.Title:
                 TitleText[0].color = TitleText[1].color = TitleText[2].color = new Color(1, 1, 1, 1);
+                movedistance = Camera.main.transform.position - TitlePos;
                 nowtask = Title_task;
                 break;
             case Mode.Game:
                 PlayerTransform.position = Vector3.zero;
                 ScoreText.color = new Color(1, 1, 1, 1);
                 ScoreText.text = "0.00m";
-                nowtask = Score_task;
+                Score = 0;
+                nowtask = Game_task;
                 HintText.color = new Color(1, 1, 1, 1);
+                arrow.SetActive(true);
                 break;
             case Mode.Result:
                 Result_set();
@@ -419,12 +455,18 @@ public class GameMaster : MonoBehaviour
         //スコアを書き出し読み込みするところを取得する
         scorefile = GetComponent<ScoreFile>();
 
-        //最高スコアを取得する
+        //最高スコアを取得、反映する
         BestScore = scorefile.ReadScore();
         TitleText[2].text = "Best:" + ScoreSep(BestScore);
 
+        //カメラの初期位置を設定
+        Camera.main.transform.position = TitlePos;
+
         //プレイヤーのトランスフォームを参照
         PlayerTransform = GameObject.Find("Player").transform;
+
+        clouds = GetComponent<Clouds>();
+        clouds.ResetCloudsPos();
 
         ChangeMode(Mode.Title);
     }

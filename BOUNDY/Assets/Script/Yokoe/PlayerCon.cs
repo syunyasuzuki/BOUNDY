@@ -34,7 +34,7 @@ public class PlayerCon : MonoBehaviour
     /// <summary>
     /// プレイヤーの基礎ジャンプ力
     /// </summary>
-    private Vector2 JumpForce = new Vector2(1, 5);
+    private Vector2 JumpForce = new Vector2(3.0f, 5.0f);
 
     /// <summary>
     /// FlickCon
@@ -115,13 +115,15 @@ public class PlayerCon : MonoBehaviour
         switch(now_playermode)
         {
             case Playermode.Ground:
+                Flick_Aicon.SetActive(true);
+                Flick_Text.color = new Color(1, 1, 1, 1);
                 //フリックの処理
                 int Flick= flickcon.Flisk_task();
                 if(Flick!=0)
                 {
-                    transform.localScale = new Vector3(Flick, 1, 1);
                     rb.isKinematic = false;
-                    rb.AddForce(new Vector2(Flick * 50f, 300.0f));
+                    rb.AddForce(new Vector2(Flick * 2.0f, 8.0f), ForceMode2D.Impulse);
+                    transform.localScale = new Vector3(Flick, 1, 1);
                     now_playermode = Playermode.Fly;
                     Flick_Aicon.SetActive(false);
                     Flick_Text.color = new Color(1, 1, 1, 0);
@@ -135,9 +137,8 @@ public class PlayerCon : MonoBehaviour
                 anim_ct += Time.deltaTime;
                 if (anim_ct >= spt_anim_ct[spt_ct])
                 {
-                    //プレイヤーのSprite差し替え
+                    //Sprite差し替え
                     player_sptr.sprite = player_spt[player_spt_ct[spt_ct]];
-                    //ばねのSprite差し替え
                     spring_obj[spring_num].AnimeSpring(spt_ct);
                     anim_ct = 0;
 
@@ -156,9 +157,8 @@ public class PlayerCon : MonoBehaviour
                 anim_ct += Time.deltaTime;
                 if (anim_ct >= spt_anim_ct[spt_ct])
                 {
-                    //プレイヤーのSprite差し替え
+                    //Sprite差し替え
                     player_sptr.sprite = player_spt[player_spt_ct[spt_ct]];
-
                     spring_obj[spring_num].AnimeSpring(spt_ct);
                     spt_ct++;
 
@@ -168,7 +168,7 @@ public class PlayerCon : MonoBehaviour
                     {
                         now_playermode = Playermode.Fly;
                         rb.isKinematic = false;
-                        rb.AddForce(new Vector2(JumpForce.x, JumpForce.y * (spring_obj[spring_num].springPower + 1)), ForceMode2D.Impulse);
+                        rb.AddForce(new Vector2(JumpForce.x*transform.localScale.x, JumpForce.y * (spring_obj[spring_num].springPower + 1)), ForceMode2D.Impulse);
                         GameDirector.Spring_ct = 0;
                         springcon.DeleteSpring(spring_num);
                     }
@@ -185,7 +185,8 @@ public class PlayerCon : MonoBehaviour
         }
         if (col.gameObject.tag==("Wall"))
         {
-            transform.localScale = new Vector2(transform.localScale.x * -1.0f, transform.localScale.y);
+            //反転
+            transform.localScale = new Vector3(transform.localScale.x * -1.0f, transform.localScale.y, 1);
         }
 
         if(col.gameObject.tag==("Spring") && now_playermode == Playermode.Fly&&transform.position.y>col.transform.position.y)

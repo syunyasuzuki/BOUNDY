@@ -59,5 +59,4 @@ public class SpringObject : MonoBehaviour
         springSpriteRenderer.sprite = spring_sprite[3];
         springPower = 1;
     }
-
 }

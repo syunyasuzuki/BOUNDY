@@ -126,7 +126,7 @@ public class SpringCon : MonoBehaviour
 
         //ばねの生成
         Debug.Log("AAAAAAA:" + next.ToString());
-        //Springs[next].springNum = next;
+        Springs[next].springNum = next;
 
         //生成したばねの位置変更
         Vector3 pos = Camera.main.ScreenToWorldPoint(Input.mousePosition - Camera.main.transform.position);
@@ -217,7 +217,7 @@ public class SpringCon : MonoBehaviour
             {
                 create_key = true;
                 Create_Spring();
-                Time.timeScale = 0.3f;
+                Time.timeScale = 1.0f;
             }
         }
         if (create_key && Input.GetMouseButton(0)) 
@@ -225,7 +225,7 @@ public class SpringCon : MonoBehaviour
             springpower = Mathf.Clamp(springpower += Time.deltaTime, 0, 0.6f);
             Springs[past_spring_num].springPower = springpower;
             //強さによる色変え
-            float col = 1 / 0.3f * springpower;
+            float col = 1 / 1.0f * springpower;
             past_spring_sprr.color = new Color(1, 1 - col, 1 - col, 1);
         }
         if (create_key && Input.GetMouseButtonUp(0)) 

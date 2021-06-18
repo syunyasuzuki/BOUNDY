@@ -31,6 +31,9 @@ public class FlickCon : MonoBehaviour
     /// </summary>
     private float averagespeed = 0;
 
+    /// <summary>
+    /// 保存している座標をリセット
+    /// </summary>
     void PosClear()
     {
         for (int i = 0; i < AccuracyLebel; ++i)
@@ -41,6 +44,9 @@ public class FlickCon : MonoBehaviour
         averagespeed = 0;
     }
 
+    /// <summary>
+    /// 速度を確認
+    /// </summary>
     void CheckFlickSpeed()
     {
         float sum = 0;
@@ -52,6 +58,9 @@ public class FlickCon : MonoBehaviour
         averagespeed = sum / max * 10;
     }
 
+    /// <summary>
+    /// 座標を保存する
+    /// </summary>
     void SavePos()
     {
         if (++count % proccesing != 0) return;
@@ -60,18 +69,10 @@ public class FlickCon : MonoBehaviour
         ++poscount;
     }
 
-    // Start is called before the first frame update
-    void Start()
-    {
-         
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-     
-    }
-
+    /// <summary>
+    /// フリック判定
+    /// </summary>
+    /// <returns>プレイヤーがどこを向いているか</returns>
     public int Flisk_task()
     {
         if (Input.GetMouseButton(0))
@@ -81,7 +82,7 @@ public class FlickCon : MonoBehaviour
         }
         if (Input.GetMouseButtonUp(0))
         {
-            if (averagespeed > 2f)
+            if (averagespeed > 1.5f)
             {
                 Vector3 Direction;
                 int nowpos = (poscount - 1) % AccuracyLebel;
@@ -97,12 +98,10 @@ public class FlickCon : MonoBehaviour
 
                 if (Direction.x > 0) 
                 {
-                    Debug.Log("a");
                     return 1;   
                 }
                 else
                 {
-                    Debug.Log("b");
                     return -1;
                 }
                

@@ -463,7 +463,7 @@ public class GameMaster : MonoBehaviour
         Camera.main.transform.position = TitlePos;
 
         //プレイヤーのトランスフォームを参照
-        PlayerTransform = GameObject.Find("Player").transform;
+        PlayerTransform = GameObject.Find("player").transform;
 
         clouds = GetComponent<Clouds>();
         clouds.ResetCloudsPos();
